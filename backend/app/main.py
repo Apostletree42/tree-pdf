@@ -1,15 +1,35 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .core.config import settings
 from .core.database import init_db
+from .documents.router import router as documents_router
+from .chat.router import router as chat_router
 
-# Create FastAPI app
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("🚀 Starting PDF Q&A Application...")
+    init_db()
+    print("✅ Database initialized")
+    print(f"🔧 Environment: {settings.environment}")
+    print(f"📁 Storage path: {settings.storage_path}")
+    
+    yield
+    
+    # Shutdown (if you need cleanup logic)
+    print("🛑 Shutting down PDF Q&A Application...")
+
+
+# Create FastAPI app with lifespan
 app = FastAPI(
     title="PDF Q&A Application",
     description="Upload PDFs and ask questions about their content",
     version="1.0.0",
-    debug=settings.debug
+    debug=settings.debug,
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -20,15 +40,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Initialize database on startup
-@app.on_event("startup")
-async def startup_event():
-    print("🚀 Starting PDF Q&A Application...")
-    init_db()
-    print("✅ Database initialized")
-    print(f"🔧 Environment: {settings.environment}")
-    print(f"📁 Storage path: {settings.storage_path}")
 
 # Health check endpoint
 @app.get("/")
@@ -47,10 +58,8 @@ async def health_check():
         "storage": "accessible"
     }
 
-# Include routers
-from .documents.router import router as documents_router
-
 app.include_router(documents_router, prefix="/api/documents", tags=["documents"])
+app.include_router(chat_router, prefix="/api/chat", tags=["chat"])
 
 if __name__ == "__main__":
     import uvicorn
