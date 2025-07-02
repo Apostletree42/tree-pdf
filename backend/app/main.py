@@ -47,9 +47,10 @@ async def health_check():
         "storage": "accessible"
     }
 
-# TODO: Add routers here
-# app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
-# app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+# Include routers
+from .documents.router import router as documents_router
+
+app.include_router(documents_router, prefix="/api/documents", tags=["documents"])
 
 if __name__ == "__main__":
     import uvicorn
