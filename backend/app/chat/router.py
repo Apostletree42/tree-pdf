@@ -28,12 +28,10 @@ async def get_conversation_history(
     """
     Get conversation history for a document
     """
-    # Verify document exists
     document = DocumentService.get_document(db, document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
-    # Get conversations
     conversations = ChatService.get_conversation_history(db, document_id, limit)
     
     return ConversationHistoryResponse(

@@ -5,7 +5,6 @@ from ..core.database import Base
 
 class Conversation(Base):
     __tablename__ = "conversations"
-    
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey('documents.id'), nullable=False)
     
@@ -16,8 +15,6 @@ class Conversation(Base):
     # Context and metadata
     context_chunks_used = Column(Integer, default=0)
     response_time_seconds = Column(Float, nullable=True)
-    
-    # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     def __repr__(self):

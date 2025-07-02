@@ -34,11 +34,11 @@ class DocumentService:
                 buffer.write(content)
                 file_size = len(content)
             
-            print(f"✅ Saved file: {file_path} ({file_size} bytes)")
+            # print(f"Saved file: {file_path} ({file_size} bytes)")
             return file_path, file_size
             
         except Exception as e:
-            print(f"❌ Error saving file: {e}")
+            print(f"Error saving file: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     
     @staticmethod
@@ -61,11 +61,11 @@ class DocumentService:
             
             doc.close()
             
-            print(f"✅ Extracted text from PDF: {len(text_content)} characters, {page_count} pages")
+            # print(f"Extracted text from PDF: {len(text_content)} characters, {page_count} pages")
             return text_content.strip(), page_count
             
         except Exception as e:
-            print(f"❌ Error extracting text from PDF: {e}")
+            # print(f"Error extracting text from PDF: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to extract text from PDF: {str(e)}")
     
     @staticmethod
@@ -83,13 +83,11 @@ class DocumentService:
             if not text_content.strip():
                 raise ValueError("No text content found in PDF")
             
-            # Create text chunks
             chunks = chunk_text(text_content, chunk_size=500, overlap=50)
             
             if not chunks:
                 raise ValueError("No text chunks created")
             
-            # Create vector index
             vector_store = get_vector_store(document.id)
             vector_store.create_index(chunks)
             
@@ -103,7 +101,7 @@ class DocumentService:
             
             db.commit()
             
-            print(f"✅ Successfully processed document {document.id}: {len(chunks)} chunks created")
+            # print(f"Successfully processed document {document.id}: {len(chunks)} chunks created")
             return True
             
         except Exception as e:
@@ -112,7 +110,7 @@ class DocumentService:
             document.processing_error = str(e)
             db.commit()
             
-            print(f"❌ Error processing document {document.id}: {e}")
+            print(f"Error processing document {document.id}: {e}")
             return False
     
     @staticmethod
@@ -163,21 +161,19 @@ class DocumentService:
             return False
         
         try:
-            # Delete vector index
             vector_store = get_vector_store(document_id)
             vector_store.delete()
             
-            # Delete file
             if os.path.exists(document.file_path):
                 os.remove(document.file_path)
             
             # Delete database record
             db.delete(document)
             db.commit()
-            
-            print(f"✅ Deleted document {document_id}")
+
+            print(f"Deleted document {document_id}")
             return True
             
         except Exception as e:
-            print(f"❌ Error deleting document {document_id}: {e}")
+            print(f"Error deleting document {document_id}: {e}")
             return False

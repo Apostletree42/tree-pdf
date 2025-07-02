@@ -19,11 +19,10 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown (if you need cleanup logic)
+    # Shutdown
     print("🛑 Shutting down PDF Q&A Application...")
 
 
-# Create FastAPI app with lifespan
 app = FastAPI(
     title="PDF Q&A Application",
     description="Upload PDFs and ask questions about their content",
@@ -32,7 +31,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,

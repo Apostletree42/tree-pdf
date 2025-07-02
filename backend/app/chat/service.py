@@ -37,18 +37,13 @@ class ChatService:
         """
         try:
             vector_store = get_vector_store(document_id)
-            
-            # Check if vector store exists
             if not vector_store.exists():
                 raise ValueError(f"No vector index found for document {document_id}")
-            
-            # Search for relevant chunks
+
             search_results = vector_store.search(question, top_k=top_k)
-            
-            # Extract text chunks
+
             context_chunks = [text for text, score in search_results]
-            
-            print(f"✅ Retrieved {len(context_chunks)} relevant chunks for question")
+
             return context_chunks, len(context_chunks)
             
         except Exception as e:
@@ -61,10 +56,8 @@ class ChatService:
         Generate answer using Gemini with retrieved context
         """
         try:
-            # Prepare context
             context_text = "\n\n".join([f"Context {i+1}: {chunk}" for i, chunk in enumerate(context_chunks)])
-            
-            # Create prompt
+
             prompt = f"""Based on the following context from a document, please answer the question. If the answer cannot be found in the context, please say so clearly.
 
 Context:
@@ -74,19 +67,15 @@ Question: {question}
 
 Please provide a comprehensive answer based on the context above. If specific information is not available in the context, mention that clearly."""
 
-            # Generate response with Gemini
             model = ChatService._get_gemini_model()
             response = model.generate_content(prompt)
             
             if not response.text:
                 return "I apologize, but I couldn't generate a response. Please try rephrasing your question."
-            
-            print(f"✅ Generated answer using Gemini")
             return response.text.strip()
             
         except Exception as e:
-            print(f"❌ Error generating answer: {e}")
-            # Fallback response
+            print(f"Error generating answer: {e}")
             return f"I apologize, but I encountered an error while processing your question: {str(e)}. Please try again."
     
     @staticmethod
@@ -131,7 +120,7 @@ Please provide a comprehensive answer based on the context above. If specific in
             db.commit()
             db.refresh(conversation)
             
-            print(f"✅ Successfully processed question for document {request.document_id}")
+            # print(f"Successfully processed question for document {request.document_id}")
             
             return QuestionResponse(
                 answer=answer,
@@ -145,7 +134,7 @@ Please provide a comprehensive answer based on the context above. If specific in
         except HTTPException:
             raise
         except Exception as e:
-            print(f"❌ Error processing question: {e}")
+            print(f"Error processing question: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
     
     @staticmethod
@@ -165,7 +154,7 @@ Please provide a comprehensive answer based on the context above. If specific in
             return conversations
             
         except Exception as e:
-            print(f"❌ Error getting conversation history: {e}")
+            print(f"Error getting conversation history: {e}")
             raise HTTPException(status_code=500, detail="Failed to get conversation history")
     
     @staticmethod
